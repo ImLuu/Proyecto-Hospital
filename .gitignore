@@ -1,0 +1,4 @@
+# Variables reales: nunca se suben al repositorio
+.env
+# Configuración local para el hosting (contiene la contraseña)
+frontend/config/config.local.php

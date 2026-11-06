@@ -1,0 +1,2 @@
+# Impide que alguien abra los archivos de configuración desde el navegador.
+Require all denied

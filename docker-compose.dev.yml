@@ -1,0 +1,35 @@
+# Entorno de DESARROLLO
+# Uso:  docker compose -f docker-compose.dev.yml up -d --build
+name: hospital-dev
+
+services:
+  app:
+    build: .
+    env_file: .env
+    ports:
+      - "${APP_PORT:-8080}:80"           # Web en http://localhost:8080
+    volumes:
+      - ./frontend:/var/www/html         # Hot-reload: editas y recargas el navegador
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_EXTERNAL_PORT:-5432}:5432" # Abierto para DBeaver/pgAdmin
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # Los datos se conservan entre reinicios
+      - ./db/init:/docker-entrypoint-initdb.d:ro  # Se ejecuta solo la 1ª vez
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
